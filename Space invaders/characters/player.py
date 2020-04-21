@@ -6,6 +6,10 @@ import random
 import time
 
 from characters.projectile import Projectile as Projectile
+import os
+player_path = os.path.dirname(os.path.abspath(__file__))
+if player_path.endswith('characters'):
+    player_path = player_path[:-10]
 
 class Player():
     def __init__(self, x, y):
@@ -15,7 +19,7 @@ class Player():
         self.y = y
         self.direction_wanted = 'right'
         self.direction = "right"
-        self.img = image.load("images/player.jpg")
+        self.img = image.load(player_path+"\\images\\player.jpg")
         self.img = self.img.convert()
         self.rect = self.img.get_rect()
         self.rect.center = (self.x, self.y)

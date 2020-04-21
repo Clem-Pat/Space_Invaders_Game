@@ -5,6 +5,12 @@ import pygame.gfxdraw
 import random
 import time
 
+import os
+projectile_path = os.path.dirname(os.path.abspath(__file__))
+if projectile_path.endswith('characters'):
+    projectile_path = projectile_path[:-10]
+
+
 class Projectile():
     def __init__(self, x, y, nature):
         self.initial_x = x
@@ -18,7 +24,7 @@ class Projectile():
         else:
             print("ERREUR DE FRAPPE ennemy OU friendly")
 
-        self.img = image.load("images/projectile {}.png".format(nature)) #ennemy ou friendly
+        self.img = image.load(projectile_path+"\\images\\projectile {}.png".format(nature)) #ennemy ou friendly
         self.img = self.img.convert()
         self.rect = self.img.get_rect()
         self.rect.center = (self.x, self.y)
@@ -30,7 +36,7 @@ class Projectile():
         elif nature == "friendly":
             self.largeur = 2
 
-        
+
     def projectile_move(self,app,n_boucle):
 
         if self.direction == 'up':

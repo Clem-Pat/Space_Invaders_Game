@@ -7,6 +7,11 @@ import pygame.gfxdraw
 import random
 import time
 
+import os
+invader_path = os.path.dirname(os.path.abspath(__file__))
+if invader_path.endswith('characters'):
+    invader_path = invader_path[:-10]
+
 class Invader():
     def __init__(self, x, y, nature):
         self.initial_x = x
@@ -15,7 +20,7 @@ class Invader():
         self.y = y
         self.direction_wanted = 'right'
         self.direction = "right"
-        self.img = image.load("images/invader {}.jpg".format(nature))
+        self.img = image.load(invader_path+"\\images\\invader {}.jpg".format(nature))
         self.img = self.img.convert()
         self.rect = self.img.get_rect()
         self.rect.center = (self.x, self.y)
@@ -62,7 +67,7 @@ class Master_Invader():
         self.y = y
         self.direction_wanted = 'right'
         self.direction = "right"
-        self.img = image.load("images/master_invader.jpg")
+        self.img = image.load(invader_path+"\\images\\master_invader.jpg")
         self.img = self.img.convert()
         self.rect = self.img.get_rect()
         self.rect.center = (self.x, self.y)
