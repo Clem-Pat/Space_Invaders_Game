@@ -10,11 +10,15 @@ from characters.projectile import Projectile as Projectile
 
 from map import create_map as map
 
+import os
+path = os.path.dirname(os.path.abspath(__file__))
+
+
 def create_fonts():
     L = []
-    L.append(font.Font("Fonts/Arial.ttf", 20))
-    L.append(font.Font("Fonts/GROBOLD.ttf", 30))
-    L.append(font.Font("Fonts/GROBOLD.ttf", 40))
+    L.append(font.Font(path+"\\Fonts\\Arial.ttf", 20))
+    L.append(font.Font(path+"\\Fonts\\GROBOLD.ttf", 30))
+    L.append(font.Font(path+"\\Fonts\\GROBOLD.ttf", 40))
 
     return L
 
