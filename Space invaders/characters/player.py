@@ -28,6 +28,7 @@ class Player():
         self.hauteur = 25
         self.largeur = 30
 
+
     def player_move(self,app):
 
         if self.x >= 694 - int(self.largeur/2) and self.direction_wanted == 'right':
@@ -44,7 +45,7 @@ class Player():
         self.old_direction = self.direction
 
         self.rect.center = (self.x, self.y)
-        app.blit(self.img, self.rect)
+
 
     def player_shoot(self,L_friendly_projectiles):
         L_friendly_projectiles.append(Projectile(self.x,self.y,"friendly"))

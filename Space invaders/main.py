@@ -2,6 +2,7 @@ from pygame import *
 import pygame.gfxdraw
 import random
 import time
+import math
 
 from characters.invader import Invader as Invader
 from characters.invader import Master_Invader as Master_Invader
@@ -33,14 +34,66 @@ def create_texts(fonts, couleurs):
     return L
 
 
-def get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders, L_friendly_projectiles):
+def create_invaders():
+    L = []
+    for i in range(17):
+        L.append(Invader(250+25*i,100,1))
+    for j in range(12):
+        L.append(Invader(250+35*j,150,2))
+    for k in range(12):
+        L.append(Invader(260+35*k,200,3))
+    for i in range(17):
+        L.append(Invader(250+25*i,250,1))
+    return L
+
+
+def place_object(app, object):
+    object.rect.center = (object.x, object.y)
+    app.blit(object.img, object.rect)
+
+
+def test_collision(surface, player, L_invaders, L_ennemy_projectiles, L_friendly_projectiles, game_over):
+
+    over = False
+
+    for i in L_ennemy_projectiles:
+        if i.rect.colliderect(player.rect):
+            over = 'perdu'
+
+    L_i_a_effacer = []
+    L_j_a_effacer = []
+    for i in L_friendly_projectiles:
+        for j in L_invaders:
+            if i.rect.colliderect(j.rect):
+                L_i_a_effacer.append(L_friendly_projectiles.index(i))
+                L_j_a_effacer.append(L_invaders.index(j))
+
+
+    for i in L_i_a_effacer:
+        if L_friendly_projectiles != []:
+            try: L_friendly_projectiles.pop(i)
+            except: pass
+
+    for j in L_j_a_effacer:
+        if L_invaders != []:
+            try: L_invaders.pop(j)
+            except : pass
+
+
+    if L_invaders == []:
+        over = 'gagne'
+
+
+    return over
+
+
+def get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders, L_friendly_projectiles, L_game_over):
 
 
     cheat = cheat_mode
     over = game_over
     run = running
     vies = nbr_vies
-    again = False
 
     for evt in event.get():
         if evt.type == QUIT:
@@ -109,6 +162,7 @@ def get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders
             elif evt.key == K_RETURN:
                 if over == 'perdu':
                     if vies != 0:
+                        app.fill((0, 0, 0))
 
                         player.direction = 'right'
                         player.direction_wanted = 'right'
@@ -121,89 +175,53 @@ def get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders
                         place_object(app, player)
 
                         vies -= 1
-                        again = False
+                        run = True
+                        over = False
+                        L_game_over = []
 
                     else:
                         run = False
-                        again = True
+                        main()
 
                 elif over == 'gagne':
                     run = False
-                    again = True
+                    main()
 
-    return run, cheat, over, vies, again, player, L_friendly_projectiles
-
-
-def place_object(app, object):
-    object.rect.center = (object.x, object.y)
-    app.blit(object.img, object.rect)
-
-
-def test_collision(surface, player, L_invaders, L_ennemy_projectiles, L_friendly_projectiles, game_over):
-
-    over = False
-
-    for i in L_ennemy_projectiles:
-        if i.rect.colliderect(player.rect):
-            over = 'perdu'
-
-    L_i_a_effacer = []
-    L_j_a_effacer = []
-    for i in L_friendly_projectiles:
-        for j in L_invaders:
-            if i.rect.colliderect(j.rect):
-                L_i_a_effacer.append(L_friendly_projectiles.index(i))
-                L_j_a_effacer.append(L_invaders.index(j))
-
-
-    for i in L_i_a_effacer:
-        if L_friendly_projectiles != []:
-            try: L_friendly_projectiles.pop(i)
-            except: pass
-
-    for j in L_j_a_effacer:
-        if L_invaders != []:
-            try: L_invaders.pop(j)
-            except : pass
-
-
-    if L_invaders == []:
-        over = 'gagne'
-
-
-    return over
+    return run, over, cheat, vies, player, L_friendly_projectiles, L_invaders, L_game_over
 
 
 def finish(app, game_over, nbr_vies, player, label_finish, label_game_over, label_enter_revive, label_enter_restart):
 
     if game_over == 'gagne':
+        try:
+            place_object(app, player)
+        except: pass
 
-        place_object(app, player)
-
-        app.blit(label_finish, (292, 220))
-        app.blit(label_enter_restart, (292,345))
+        try:
+            app.blit(label_finish, (292, 220))
+            app.blit(label_enter_restart, (292,345))
+        except : pass
 
     elif game_over == 'perdu':
+        try:
+            place_object(app, player)
+        except: pass
 
-        place_object(app, player)
+        try:
+            app.blit(label_game_over, (320,210))
+            if nbr_vies != 0:
+                app.blit(label_enter_revive, (298,345))
+            else:
+                app.blit(label_enter_restart, (292,345))
+        except: pass
 
-        app.blit(label_game_over, (320,210))
-        if nbr_vies != 0:
-            app.blit(label_enter_revive, (298,345))
-        else:
-            app.blit(label_enter_restart, (292,345))
 
-def create_invaders():
-    L = []
-    for i in range(17):
-        L.append(Invader(250+25*i,100,1))
-    for j in range(12):
-        L.append(Invader(250+35*j,150,2))
-    for k in range(12):
-        L.append(Invader(260+35*k,200,3))
-    for i in range(17):
-        L.append(Invader(250+25*i,250,1))
-    return L
+def attack_player(L_invaders, player, L_ennemy_projectiles):
+    L_distances = []
+    for i in L_invaders:
+        L_distances.append(math.sqrt((i.x - player.x)**2 + (i.y - player.y)**2))
+    attaquant = L_invaders[L_distances.index(min(L_distances))]
+    attaquant.invader_shoot(L_ennemy_projectiles)
 
 
 def main():
@@ -231,18 +249,18 @@ def main():
     L_invaders = create_invaders()
     L_ennemy_projectiles = []
     L_friendly_projectiles = []
-    L_ennemy_projectiles.append(Projectile(200,100,"ennemy"))
 
     player_vie1 = Player(60, 100)
     player_vie2 = Player(100, 100)
     player_vie3 = Player(140, 100)
-    nbr_vies = 2
+    nbr_vies = 0
 
     turn = False
     cheat_mode = False
     game_over = False
     running = True
     n_boucle = 0
+    L_game_over = []
     while running == True:
         n_boucle += 1
         temps = time.time() - time_start
@@ -250,19 +268,36 @@ def main():
         map(app)
 
         ### Events : ###
-        running, cheat_mode, game_over, nbr_vies, play_again, player, L_friendly_projectiles = get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders, L_friendly_projectiles)
+        running, test_over, cheat_mode, nbr_vies, player, L_friendly_projectiles, L_invaders, L_game_over = get_events(app, running, game_over, cheat_mode, nbr_vies, player, L_invaders, L_friendly_projectiles, L_game_over)
+        L_game_over.append(test_over)
 
-        game_over = test_collision(app, player, L_invaders, L_ennemy_projectiles, L_friendly_projectiles, game_over)
+        test_over = test_collision(app, player, L_invaders, L_ennemy_projectiles, L_friendly_projectiles, game_over)
+        L_game_over.append(test_over)
 
-
-        if game_over == False :
+        if 'perdu' not in L_game_over and 'gagne' not in L_game_over :
             ### game not finished ###
-            player.player_move(app)
-
-            for i in L_invaders:
-                game_over = i.invader_move(app)
+            if n_boucle % 1 == 0:
+                player.player_move(app)
 
 
+            """deplacer les invaders à une vitesse 4 fois moins élevée que player"""
+            if n_boucle % 6 == 0:
+                L_end_of_line = []
+                L_game_over = []  #on réinitialise la liste des tests de fin de jeu
+                for i in L_invaders:
+                    test_over, end_of_line = i.invader_move(app)
+                    L_end_of_line.append(end_of_line)
+                    L_game_over.append(test_over)
+
+                if True in L_end_of_line: #Si un invader arrive au bout de la ligne, tous descendent d'un cran
+                    for i in L_invaders:
+                        i.y += 25
+                        i.invader_change_direction()
+            if n_boucle % 300 == 0:
+                attack_player(L_invaders, player, L_ennemy_projectiles)
+
+
+            """deplacer les projectiles"""
             for p in range(len(L_friendly_projectiles)):
                 try:
                     L_friendly_projectiles[p].projectile_move(app, n_boucle)
@@ -270,38 +305,52 @@ def main():
                         L_friendly_projectiles.pop(p)
                 except: pass
 
-            for q in range(len(L_ennemy_projectiles)):
-                try:
-                    L_ennemy_projectiles[q].projectile_move(app, n_boucle)
-                    if L_ennemy_projectiles[q].y >= 500:
-                        L_ennemy_projectiles.pop(q)
-                except :pass
+            if n_boucle % 2 == 0:
+                for q in range(len(L_ennemy_projectiles)):
+                    try:
+                        L_ennemy_projectiles[q].projectile_move(app, n_boucle)
+                        if L_ennemy_projectiles[q].y >= 500:
+                            L_ennemy_projectiles.pop(q)
+                    except :pass
 
 
-        if game_over != False:
-            finish(app, game_over, nbr_vies, player, text['label_finish'], text['label_game_over'], text['label_enter_revive'], text['label_enter_restart'])
+            """afficher les objets (player, invaders, projectiles)"""
+            player.old_direction = player.direction
+            app.blit(player.img, player.rect)
+
+            for i in L_invaders :
+                app.blit(i.img, i.rect)
+                i.old_direction = i.direction
+            for p in L_friendly_projectiles:
+                app.blit(p.img, p.rect)
+            for q in L_ennemy_projectiles:
+                app.blit(q.img, q.rect)
 
 
-        app.blit(text['label_lives'], (50, 50))
-        app.blit(player_vie1.img, player_vie1.rect)  # l'objet et son rectangle
-        if nbr_vies >= 1:
-            app.blit(player_vie2.img, player_vie2.rect)  # l'objet et son rectangle
-            if nbr_vies >= 2:
-                app.blit(player_vie3.img, player_vie3.rect)  # l'objet et son rectangle
+        finish(app, game_over, nbr_vies, player, text['label_finish'], text['label_game_over'], text['label_enter_revive'], text['label_enter_restart'])
 
 
-        display.update()
+        if 'perdu' in L_game_over:
+            game_over = 'perdu'
+        elif 'gagne' in L_game_over:
+            game_over = 'gagne'
 
-        player.old_direction = player.direction
-        for i in L_invaders :
-            i.old_direction = i.direction
+
+        """afficher le nb de vies"""
+        try:
+            app.blit(text['label_lives'], (50, 50))
+            app.blit(player_vie1.img, player_vie1.rect)  # l'objet et son rectangle
+            if nbr_vies >= 1:
+                app.blit(player_vie2.img, player_vie2.rect)  # l'objet et son rectangle
+                if nbr_vies >= 2:
+                    app.blit(player_vie3.img, player_vie3.rect)  # l'objet et son rectangle
+            display.update()
+        except: pass
+
 
         time.sleep(0.0015)
 
     quit()
-
-    if play_again == True:
-        main()
 
 
 if __name__ == '__main__':

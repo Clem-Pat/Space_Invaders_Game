@@ -6,6 +6,7 @@ from pygame import *
 import pygame.gfxdraw
 import random
 import time
+from characters.projectile import Projectile as Projectile
 
 import os
 invader_path = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,15 @@ class Invader():
             self.hauteur = 20
             self.largeur = 30
 
+    def invader_shoot(self, L_ennemy_projectiles):
+        L_ennemy_projectiles.append(Projectile(self.x,self.y,"ennemy"))
+
+    def invader_change_direction(self):
+        if self.direction == 'right':
+            self.direction_wanted = 'left'
+        elif self.direction == 'left':
+            self.direction_wanted = 'right'
+
     def invader_move(self,app):
 
         self.direction = self.direction_wanted
@@ -43,20 +53,19 @@ class Invader():
 
 
         if self.x >= 694 - int(self.largeur/2) or self.x <= 197 + int(self.largeur/2):
-            self.y += 25
-            if self.direction == 'right':
-                self.direction_wanted = 'left'
-            elif self.direction == 'left':
-                self.direction_wanted = 'right'
+            end_of_line = True
+        else:
+            end_of_line = False
 
         self.rect.center = (self.x, self.y)
-        app.blit(self.img, self.rect)
+
 
         if self.y > 450:
             game_over = 'perdu'
         else:
             game_over = False
-        return game_over
+
+        return game_over, end_of_line
 
 
 class Master_Invader():

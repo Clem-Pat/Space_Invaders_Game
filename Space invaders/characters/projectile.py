@@ -49,4 +49,3 @@ class Projectile():
                 self.img = transform.flip(self.img, True, True)
 
         self.rect.center = (self.x, self.y)
-        app.blit(self.img, self.rect)
