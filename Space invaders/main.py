@@ -216,12 +216,21 @@ def finish(app, game_over, nbr_vies, player, label_finish, label_game_over, labe
         except: pass
 
 
-def attack_player(L_invaders, player, L_ennemy_projectiles):
-    L_distances = []
-    for i in L_invaders:
-        L_distances.append(math.sqrt((i.x - player.x)**2 + (i.y - player.y)**2))
-    attaquant = L_invaders[L_distances.index(min(L_distances))]
-    attaquant.invader_shoot(L_ennemy_projectiles)
+def attack_player(L_invaders, player, L_ennemy_projectiles, n_boucle):
+    if n_boucle % 300 == 0:
+        L_distances = []
+        for i in L_invaders:
+            L_distances.append(math.sqrt((i.x - player.x)**2 + (i.y - player.y)**2))
+        attaquant = L_invaders[L_distances.index(min(L_distances))]
+        attaquant.invader_shoot(L_ennemy_projectiles)
+
+    if n_boucle % 900 == 0:
+        L_distances = []
+        for i in L_invaders:
+            x_recherche = (i.y - player.y) * (i.speed/player.speed) + player.x
+            L_distances.append(math.sqrt((i.x - x_recherche)**2))
+        attaquant = L_invaders[L_distances.index(min(L_distances))]
+        attaquant.invader_shoot(L_ennemy_projectiles)
 
 
 def main():
@@ -255,6 +264,7 @@ def main():
     player_vie3 = Player(140, 100)
     nbr_vies = 0
 
+    temps_de_boucle = 0.0015
     turn = False
     cheat_mode = False
     game_over = False
@@ -280,39 +290,47 @@ def main():
                 player.player_move(app)
 
 
-            """deplacer les invaders à une vitesse 4 fois moins élevée que player"""
-            if n_boucle % 6 == 0:
-                L_end_of_line = []
-                L_game_over = []  #on réinitialise la liste des tests de fin de jeu
-                for i in L_invaders:
-                    test_over, end_of_line = i.invader_move(app)
-                    L_end_of_line.append(end_of_line)
-                    L_game_over.append(test_over)
-
-                if True in L_end_of_line: #Si un invader arrive au bout de la ligne, tous descendent d'un cran
+            """deplacer les invaders à une vitesse 6 fois moins élevée que player"""
+            try:
+                if n_boucle % L_invaders[0].speed == 0:
+                    L_end_of_line = []
+                    L_game_over = []  #on réinitialise la liste des tests de fin de jeu
                     for i in L_invaders:
-                        i.y += 25
-                        i.invader_change_direction()
+                        test_over, end_of_line = i.invader_move(app)
+                        L_end_of_line.append(end_of_line)
+                        L_game_over.append(test_over)
+
+                    if True in L_end_of_line: #Si un invader arrive au bout de la ligne, tous descendent d'un cran
+                        for i in L_invaders:
+                            i.y += 25
+                            i.invader_change_direction()
+            except: pass
+
             if n_boucle % 300 == 0:
-                attack_player(L_invaders, player, L_ennemy_projectiles)
+                if cheat_mode == False:
+                    attack_player(L_invaders, player, L_ennemy_projectiles, n_boucle)
 
 
             """deplacer les projectiles"""
-            for p in range(len(L_friendly_projectiles)):
-                try:
-                    L_friendly_projectiles[p].projectile_move(app, n_boucle)
-                    if L_friendly_projectiles[p].y <= 90:
-                        L_friendly_projectiles.pop(p)
-                except: pass
+            try:
+                if n_boucle % L_friendly_projectiles[0].speed ==0:
+                    for p in range(len(L_friendly_projectiles)):
+                        try:
+                            L_friendly_projectiles[p].projectile_move(app, n_boucle)
+                            if L_friendly_projectiles[p].y <= 90:
+                                L_friendly_projectiles.pop(p)
+                        except: pass
+            except: pass
 
-            if n_boucle % 2 == 0:
-                for q in range(len(L_ennemy_projectiles)):
-                    try:
-                        L_ennemy_projectiles[q].projectile_move(app, n_boucle)
-                        if L_ennemy_projectiles[q].y >= 500:
-                            L_ennemy_projectiles.pop(q)
-                    except :pass
-
+            try:
+                if n_boucle % L_ennemy_projectiles[0].speed == 0:
+                    for q in range(len(L_ennemy_projectiles)):
+                        try:
+                            L_ennemy_projectiles[q].projectile_move(app, n_boucle)
+                            if L_ennemy_projectiles[q].y >= 500:
+                                L_ennemy_projectiles.pop(q)
+                        except :pass
+            except: pass
 
             """afficher les objets (player, invaders, projectiles)"""
             player.old_direction = player.direction
@@ -347,8 +365,13 @@ def main():
             display.update()
         except: pass
 
+        if cheat_mode == True:
+            for i in L_invaders:
+                i.speed = 100
+        
 
-        time.sleep(0.0015)
+
+        time.sleep(temps_de_boucle)
 
     quit()
 

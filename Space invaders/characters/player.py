@@ -17,6 +17,7 @@ class Player():
         self.initial_y = y
         self.x = x
         self.y = y
+        self.speed = 1
         self.direction_wanted = 'right'
         self.direction = "right"
         self.img = image.load(player_path+"\\images\\player.jpg")

@@ -19,6 +19,7 @@ class Invader():
         self.initial_y = y
         self.x = x
         self.y = y
+        self.speed = 6
         self.direction_wanted = 'right'
         self.direction = "right"
         self.img = image.load(invader_path+"\\images\\invader {}.jpg".format(nature))

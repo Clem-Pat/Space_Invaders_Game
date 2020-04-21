@@ -17,10 +17,13 @@ class Projectile():
         self.initial_y = y
         self.x = x
         self.y = y
+
         if nature == 'ennemy':
             self.direction = "down"
+            self.speed = 3
         elif nature == 'friendly':
             self.direction = "up"
+            self.speed = 1
         else:
             print("ERREUR DE FRAPPE ennemy OU friendly")
 
